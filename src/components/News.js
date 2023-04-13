@@ -9,6 +9,7 @@ class News extends Component {
     return string.charAt(0).toUpperCase()+string.slice(1);
   }
   constructor(props){
+    console.log("hello")
     super(props);
     this.state = {
     articles : [],
@@ -20,19 +21,21 @@ class News extends Component {
   }
   async updateNews(){
     const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=c6a9c67be8754daf91164909e38a2d93&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-    {this.setState({loading:true})}
     let data = await fetch(url);
     let parsedData = await data.json()
     console.log(parsedData)
     this.setState({
       articles:parsedData.articles, 
-      totalResults: parsedData.totalResults, 
+      totalResults: parsedData.totalResults,
       loading:false,
     })
  
   }
 
   async componentDidMount(){
+    console.log("iamrunngin")
+    if(this.state.loading === false) return;
+    console.log("afterifiamrunngin")
    this.updateNews();
   }
   fetchMoreData = async () => {
@@ -40,7 +43,6 @@ class News extends Component {
       page:this.state.page+1
      })
      const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=c6a9c67be8754daf91164909e38a2d93&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-     {this.setState({loading:true})}
      let data = await fetch(url);
      let parsedData = await data.json()
      console.log(parsedData)
@@ -58,13 +60,13 @@ class News extends Component {
         <InfiniteScroll
           dataLength={this.state.articles.length}
           next={this.fetchMoreData}
-          hasMore={this.state.articles.length !== this.state.totalResults}
+          hasMore={this.state.articles.length <= this.state.totalResults}
           loader={<Spinner/>}
         >
         <div className="container">
         <div className="row">
-        {this.state.articles.map((element)=>{
-          return <div className="col-md-4"  key={element.url} >
+        {this.state.articles.map((element, i)=>{
+          return <div className="col-md-4"  key={i} >
            <NewsItem title={!element.title?"":element.title} description={!element.description?"":element.description} imageUrl={element.urlToImage?element.urlToImage:"https://www.shutterstock.com/image-vector/background-screen-saver-on-breaking-260nw-1538146961.jpg"} newsUrl={element.url} author={element.author} date={element.publishedAt} source={element.source.name}/>
            </div>
         })}  
